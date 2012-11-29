@@ -1,4 +1,2 @@
-open-jade-certbuilder
+open-jade-certificate
 =====================
-
-open-jade-certbuilder
