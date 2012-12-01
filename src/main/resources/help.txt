@@ -1,4 +1,3 @@
---------------------------------
-Help Open Jade Cert Builder
-
---------------------------------
+Invalid Operation - Help:
+* create test certificate: 
+   java-jar open-jade-certbuilder-[version].jar -test
