@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -121,7 +122,7 @@ public class X509CertificateBuilder {
 
 	private String url;
 
-	public X509CertificateBuilder(String caFile, String caPassword, String caAlias, boolean useBCAPI, String personID, String _agentID, String personEmail, String url) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException, InvalidKeyException, NoSuchProviderException, SignatureException {
+	public X509CertificateBuilder(InputStream caKeystore, String caKeystorePassword, String caKeystoreAlias, boolean useBCAPI, String personID, String _agentID, String personEmail, String url) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException, InvalidKeyException, NoSuchProviderException, SignatureException {
 		this.useBCAPI = useBCAPI;
 		this.personID = personID;
 		this.agentID = _agentID;
@@ -130,19 +131,19 @@ public class X509CertificateBuilder {
 		
 		this.url = url;
 
-		logger.debug("Loading CA certificate and private key from file '" + caFile + "', using alias '" + caAlias + "' with " + (this.useBCAPI ? "Bouncycastle lightweight API" : "JCE API"));
+		logger.debug("Loading CA certificate and private key from file '" + caKeystore + "', using alias '" + caKeystoreAlias + "' with " + (this.useBCAPI ? "Bouncycastle lightweight API" : "JCE API"));
 		KeyStore caKs = KeyStore.getInstance("PKCS12");
-		caKs.load(new FileInputStream(new File(caFile)), caPassword.toCharArray());
+		caKs.load(caKeystore, caKeystorePassword.toCharArray());
 
 		// load the key entry from the keystore
-		Key key = caKs.getKey(caAlias, caPassword.toCharArray());
+		Key key = caKs.getKey(caKeystoreAlias, caKeystorePassword.toCharArray());
 		if (key == null) {
 			throw new RuntimeException("Got null key from keystore!");
 		}
 		RSAPrivateCrtKey privKey = (RSAPrivateCrtKey) key;
 		caPrivateKey = new RSAPrivateCrtKeyParameters(privKey.getModulus(), privKey.getPublicExponent(), privKey.getPrivateExponent(), privKey.getPrimeP(), privKey.getPrimeQ(), privKey.getPrimeExponentP(), privKey.getPrimeExponentQ(), privKey.getCrtCoefficient());
 		// and get the certificate
-		caCert = (X509Certificate) caKs.getCertificate(caAlias);
+		caCert = (X509Certificate) caKs.getCertificate(caKeystoreAlias);
 		if (caCert == null) {
 			throw new RuntimeException("Got null cert from keystore!");
 		}
@@ -284,6 +285,8 @@ public class X509CertificateBuilder {
 		FileOutputStream fOut = new FileOutputStream(exportFile);
 
 		store.store(fOut, exportPassword.toCharArray());
+		
+		logger.info("  [" + exportFile + "] generated");
 
 		return true;
 	}
@@ -294,19 +297,12 @@ public class X509CertificateBuilder {
 	 * @return
 	 */
 	private X509Extensions getCertGen() {
-
 		X509ExtensionsGenerator certGen = new X509ExtensionsGenerator();
-
 		certGen.addExtension(X509Extensions.SubjectAlternativeName, false, new DEREncodable() {
-			
-			
-
-
-
 			public DERObject getDERObject() {
 				try {
 					ASN1EncodableVector nameVector = new ASN1EncodableVector();
-					// cpf
+					// person id
 					String value = "01011980" + personID + "00000000000000000000000000";
 					add(nameVector, OID_2_16_76_1_3_1, value);
 					value = "0000000000000000000";
