@@ -2,8 +2,6 @@ package openjade.certbuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -152,6 +150,7 @@ public class X509CertificateBuilder {
 		logger.debug("Successfully verified CA certificate with its own public key.");
 	}
 
+	@SuppressWarnings("resource")
 	public boolean createCertificate(String dn, int validityDays, String exportFile, String exportPassword) throws IOException, InvalidKeyException, SecurityException, SignatureException, NoSuchAlgorithmException, DataLengthException, CryptoException, KeyStoreException, NoSuchProviderException, CertificateException, InvalidKeySpecException {
 		logger.debug("Generating certificate for distinguished subject name '" + dn + "', valid for " + validityDays + " days");
 		SecureRandom sr = new SecureRandom();
