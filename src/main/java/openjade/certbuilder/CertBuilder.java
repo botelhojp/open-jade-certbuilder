@@ -14,7 +14,6 @@ public class CertBuilder {
 		logger.info("-----------------------------");
 		logger.info("Open Jade Builder - v 1.0.0");
 		logger.info("-----------------------------");
-		
 		if (args.length < 1){
 			showHelp();
 		}else{
@@ -40,29 +39,21 @@ public class CertBuilder {
 		logger.info("generating certificate for tests...");
 		InputStream keystore = CertBuilder.class.getResourceAsStream("/certs/keystore_open_jade.p12");
 		String alias = "alias_ca";		
-		String passwordKeystore = 	getValue(table.get("certpassword"), "");
-		String personID = 			getValue(table.get("personid"), "000.000.000-00");
-		String personName = 		getValue(table.get("personname"), ""); 
-		String personEmail = 		getValue(table.get("personemail"), "");
-		String url = 				getValue(table.get("url"), "");
-		String agentID = 			getValue(table.get("agendid"), "");
+		String passwordKeystore = 	X509Functions.getValue(table.get("certpassword"), "");
+		String personID = 			X509Functions.getValue(table.get("personid"), "000.000.000-00");
+		String personName = 		X509Functions.getValue(table.get("personname"), ""); 
+		String personEmail = 		X509Functions.getValue(table.get("personemail"), "");
+		String url = 				X509Functions.getValue(table.get("url"), "");
+		String agentID = 			X509Functions.getValue(table.get("agendid"), "");
 		String newFileName = "cert_" + agentID + ".pfx";
 		try {
-			builder = new X509CertificateBuilder(keystore, passwordKeystore, alias, true, personID, agentID, personEmail, url);
+			builder = new X509CertificateBuilder(keystore, alias, true, personID, agentID, personEmail, url);
 			StringBuffer cn = new StringBuffer();
 			cn.append(personName + ":" + agentID);
 			builder.createCertificate(cn.toString(), 1460, newFileName, passwordKeystore);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			throw new CertBuilderException(e);
 		}		
-	}
-
-	private static String getValue(String str1, String str2) {
-		if (str1 != null){
-			return str1;
-		}else{
-			return str2;
-		}
 	}
 
 	private static void buildCertTest() {
@@ -77,17 +68,13 @@ public class CertBuilder {
 		String agentID = "agent_00001";
 		String newFileName = "cert_" + agentID + ".pfx";
 		try {
-			builder = new X509CertificateBuilder(keystore, passwordKeystore, alias, true, personID, agentID, personEmail, url);
+			builder = new X509CertificateBuilder(keystore, alias, true, personID, agentID, personEmail, url);
 			StringBuffer cn = new StringBuffer();
 			cn.append(personName + ":" + agentID);
 			builder.createCertificate(cn.toString(), 1460, newFileName, passwordKeystore);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			throw new CertBuilderException(e);
 		}		
-	}
-
-	private static void info(String _message) {
-		logger.info(_message);
 	}
 
 	@SuppressWarnings("resource")
@@ -95,7 +82,7 @@ public class CertBuilder {
 		InputStream is = CertBuilder.class.getResourceAsStream("/help.txt");
 		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 		while (s.hasNext()) {
-			info(s.next());
+			logger.info(s.next());
 		}
 	}
 }

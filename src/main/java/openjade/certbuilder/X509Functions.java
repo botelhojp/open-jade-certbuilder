@@ -314,4 +314,12 @@ public class X509Functions {
 
 		return prov;
 	}
+	
+	public static String getValue(String str1, String str2) {
+		if (str1 != null){
+			return str1;
+		}else{
+			return str2;
+		}
+	}
 }

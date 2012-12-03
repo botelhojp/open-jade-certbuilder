@@ -20,12 +20,12 @@ public class X509CertificateBuilderTest {
 		String path = X509CertificateBuilderTest.class.getResource("/certs").getPath();
 		String passwordKeystore = "123456";
 		String personID = "00000000001";
-		String personName = "Jonhn dd";
+		String personName = "Leonardo Da Vinci";
 		String personEmail = "agent@openjade.org";
 		String url = "http://openjade.org/lcr/acopenjade.crl";
 		String agentID = "agent_00001";
 		String newFileName = "/cert_" + agentID + ".pfx";
-		X509CertificateBuilder gen = new X509CertificateBuilder(keystore, passwordKeystore, "alias_ca", true, personID, agentID, personEmail, url);
+		X509CertificateBuilder gen = new X509CertificateBuilder(keystore, "alias_ca", true, personID, agentID, personEmail, url);
 		StringBuffer cn = new StringBuffer();
 		cn.append(personName + ":" + agentID);
 		gen.createCertificate(cn.toString(), 1460, path + newFileName, passwordKeystore);
