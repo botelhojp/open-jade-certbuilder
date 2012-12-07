@@ -93,6 +93,8 @@ public class X509CertificateBuilder {
 	/** Our log4j logger. */
 	private static Logger logger = Logger.getLogger(X509CertificateBuilder.class);
 	
+	private static final String CA_KEYSTORE_PASSWORD = "123456";
+	
 	private String OID_2_16_76_1_3_1 = "2.16.76.1.3.1";
 	private String OID_2_16_76_1_3_6 = "2.16.76.1.3.6";
 	private String OID_2_16_76_1_3_5 = "2.16.76.1.3.5";
@@ -120,7 +122,7 @@ public class X509CertificateBuilder {
 
 	private String url;
 
-	public X509CertificateBuilder(InputStream caKeystore, String caKeystorePassword, String caKeystoreAlias, boolean useBCAPI, String personID, String _agentID, String personEmail, String url) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException, InvalidKeyException, NoSuchProviderException, SignatureException {
+	public X509CertificateBuilder(InputStream caKeystore, String caKeystoreAlias, boolean useBCAPI, String personID, String _agentID, String personEmail, String url) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException, InvalidKeyException, NoSuchProviderException, SignatureException {
 		this.useBCAPI = useBCAPI;
 		this.personID = personID;
 		this.agentID = _agentID;
@@ -131,19 +133,19 @@ public class X509CertificateBuilder {
 
 		logger.debug("Loading CA certificate and private key from file '" + caKeystore + "', using alias '" + caKeystoreAlias + "' with " + (this.useBCAPI ? "Bouncycastle lightweight API" : "JCE API"));
 		KeyStore caKs = KeyStore.getInstance("PKCS12");
-		caKs.load(caKeystore, caKeystorePassword.toCharArray());
+		caKs.load(caKeystore, CA_KEYSTORE_PASSWORD.toCharArray());
 
 		// load the key entry from the keystore
-		Key key = caKs.getKey(caKeystoreAlias, caKeystorePassword.toCharArray());
+		Key key = caKs.getKey(caKeystoreAlias, CA_KEYSTORE_PASSWORD.toCharArray());
 		if (key == null) {
-			throw new RuntimeException("Got null key from keystore!");
+			throw new CertBuilderException("Got null key from keystore!");
 		}
 		RSAPrivateCrtKey privKey = (RSAPrivateCrtKey) key;
 		caPrivateKey = new RSAPrivateCrtKeyParameters(privKey.getModulus(), privKey.getPublicExponent(), privKey.getPrivateExponent(), privKey.getPrimeP(), privKey.getPrimeQ(), privKey.getPrimeExponentP(), privKey.getPrimeExponentQ(), privKey.getCrtCoefficient());
 		// and get the certificate
 		caCert = (X509Certificate) caKs.getCertificate(caKeystoreAlias);
 		if (caCert == null) {
-			throw new RuntimeException("Got null cert from keystore!");
+			throw new CertBuilderException("Got null cert from keystore!");
 		}
 		logger.debug("Successfully loaded CA key and certificate. CA DN is '" + caCert.getSubjectDN().getName() + "'");
 		caCert.verify(caCert.getPublicKey());
@@ -317,8 +319,7 @@ public class X509CertificateBuilder {
 					return new GeneralNames(new DERSequence(nameVector)).getDERObject();
 
 				} catch (Throwable e) {
-					e.printStackTrace();
-					throw new RuntimeException("erro", e);
+					throw new CertBuilderException("Erro to set extensions for ICP Brasil", e);
 				}
 			}
 
