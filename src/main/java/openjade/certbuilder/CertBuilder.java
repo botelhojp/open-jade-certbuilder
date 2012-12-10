@@ -45,7 +45,7 @@ public class CertBuilder {
 		String personEmail = 		X509Functions.getValue(table.get("personemail"), "");
 		String url = 				X509Functions.getValue(table.get("url"), "");
 		String agentID = 			X509Functions.getValue(table.get("agendid"), "");
-		String newFileName = "cert_" + agentID + ".pfx";
+		String newFileName = 		agentID + ".pfx";
 		try {
 			builder = new X509CertificateBuilder(keystore, alias, true, personID, agentID, personEmail, url);
 			StringBuffer cn = new StringBuffer();
@@ -66,7 +66,7 @@ public class CertBuilder {
 		String personEmail = "agent@openjade.org";
 		String url = "http://openjade.org/lcr/acopenjade.crl";
 		String agentID = "agent_00001";
-		String newFileName = "cert_" + agentID + ".pfx";
+		String newFileName = agentID + ".pfx";
 		try {
 			builder = new X509CertificateBuilder(keystore, alias, true, personID, agentID, personEmail, url);
 			StringBuffer cn = new StringBuffer();
