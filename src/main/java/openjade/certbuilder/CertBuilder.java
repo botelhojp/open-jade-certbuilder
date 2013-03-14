@@ -36,7 +36,7 @@ public class CertBuilder {
 				table.put(param[0].toLowerCase(), param[1].replace("\"", "").toLowerCase());
 			}
 		}
-		logger.info("generating certificate for tests...");
+		logger.info("generating custom certificate...");
 		InputStream keystore = CertBuilder.class.getResourceAsStream("/certs/keystore_open_jade.p12");
 		String alias = "alias_ca";		
 		String passwordKeystore = 	X509Functions.getValue(table.get("certpassword"), "");
@@ -44,7 +44,7 @@ public class CertBuilder {
 		String personName = 		X509Functions.getValue(table.get("personname"), ""); 
 		String personEmail = 		X509Functions.getValue(table.get("personemail"), "");
 		String url = 				X509Functions.getValue(table.get("url"), "");
-		String agentID = 			X509Functions.getValue(table.get("agendid"), "");
+		String agentID = 			X509Functions.getValue(table.get("agentid"), "");
 		String newFileName = 		agentID + ".pfx";
 		try {
 			builder = new X509CertificateBuilder(keystore, alias, true, personID, agentID, personEmail, url);
@@ -57,7 +57,7 @@ public class CertBuilder {
 	}
 
 	private static void buildCertTest() {
-		logger.info("generating certificate for tests...");
+		logger.info("generating certificate...");
 		InputStream keystore = CertBuilder.class.getResourceAsStream("/certs/keystore_open_jade.p12");
 		String alias = "alias_ca";
 		String passwordKeystore = "123456";
@@ -77,7 +77,6 @@ public class CertBuilder {
 		}		
 	}
 
-	@SuppressWarnings("resource")
 	private static void showHelp() {
 		InputStream is = CertBuilder.class.getResourceAsStream("/help.txt");
 		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
